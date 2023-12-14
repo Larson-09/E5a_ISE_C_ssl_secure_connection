@@ -1,4 +1,4 @@
-# Install script for directory: /home/jordan/Documents/ESEO/S9/android_avance/explo_securite_repo/E5a_ISE_C_ssl_secure_connection
+# Install script for directory: /home/jordan/Documents/ESEO/S9/android_avance/explo_securite_repo/E5a_ISE_C_ssl_secure_connection/C
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -50,5 +50,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/jordan/Documents/ESEO/S9/android_avance/explo_securite_repo/E5a_ISE_C_ssl_secure_connection/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/jordan/Documents/ESEO/S9/android_avance/explo_securite_repo/E5a_ISE_C_ssl_secure_connection/C/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
