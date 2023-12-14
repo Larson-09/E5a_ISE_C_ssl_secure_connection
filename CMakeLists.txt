@@ -3,11 +3,11 @@ project(exploration_securite C)
 
 set(CMAKE_C_STANDARD 11)
 add_executable(exploration_securite
-        src/com/connexion/connexion.c
+        src/connexion/connexion.c
         src/main.c
         src/main.c
-        src/com/com/com.c
-        src/com/protocole/protocole.c)
+        src/example_code/example_code.c
+)
 
 target_compile_options(exploration_securite PRIVATE "-Wall" "-Wextra")  # Exemple d'options de compilation
 

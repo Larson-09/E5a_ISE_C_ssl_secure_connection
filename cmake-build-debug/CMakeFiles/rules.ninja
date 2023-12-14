@@ -42,7 +42,7 @@ rule CUSTOM_COMMAND
 # Rule for re-running cmake.
 
 rule RERUN_CMAKE
-  command = /snap/clion/259/bin/cmake/linux/x64/bin/cmake --regenerate-during-build -S/home/jordan/Documents/ESEO/S9/android_avance/exploration_securite -B/home/jordan/Documents/ESEO/S9/android_avance/exploration_securite/cmake-build-debug
+  command = /snap/clion/259/bin/cmake/linux/x64/bin/cmake --regenerate-during-build -S/home/jordan/Documents/ESEO/S9/android_avance/explo_securite_repo/E5a_ISE_C_ssl_secure_connection -B/home/jordan/Documents/ESEO/S9/android_avance/explo_securite_repo/E5a_ISE_C_ssl_secure_connection/cmake-build-debug
   description = Re-running CMake...
   generator = 1
 

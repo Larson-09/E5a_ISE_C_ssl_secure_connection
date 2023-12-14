@@ -4,13 +4,27 @@
 #include <pthread.h>
 #include <mqueue.h>
 
-#include "com.h"
+#include "example_code.h"
 #include "../connexion/connexion.h"
+#include "../conf.c"
+
 
 #define MQ_WRITE_NAME "/mq_write"
 
 static pthread_t thread_read;
 static pthread_t thread_write;
+
+/**
+ * Send a message on the socket
+ * @param message   The message to send
+ * @param size      The size of the message
+ */
+void send_message(u_int8_t *message, ssize_t size);
+
+/**
+ * Build a test message and send it on the socket
+ */
+void test_message();
 
 /**
  * Thread function used to regularly read the socket
@@ -26,18 +40,16 @@ void *thread_read_fct(void *arg);
  */
 void *thread_write_fct(void *arg);
 
-void test_message();
 
 static int running = 1;
-
 mqd_t mq_write;
 
-void com_init() {
+void launch() {
     // Open mq for socket writing
     struct mq_attr attr;
     attr.mq_flags = 0;
     attr.mq_maxmsg = 10;
-    attr.mq_msgsize = sizeof(message_t);
+    attr.mq_msgsize = MAX_MSG_SIZE;
 
     mq_unlink(MQ_WRITE_NAME);
     mq_write = mq_open(MQ_WRITE_NAME, O_CREAT | O_RDWR | O_EXCL, 0644, &attr);
@@ -49,8 +61,6 @@ void com_init() {
 
     // Opening server on port SERVEUR_PORT
     connexion_init(SERVER_PORT);
-    test_message();
-
 
     // Launching reading thread
     if (pthread_create(&thread_read, NULL, thread_read_fct, NULL) != 0) {
@@ -65,11 +75,24 @@ void com_init() {
     }
 }
 
-void com_send_message(message_t *message) {
-    if (mq_send(mq_write, message, sizeof(message_t), 0) == -1) {
+void send_message(u_int8_t *message, ssize_t size) {
+    if (mq_send(mq_write, message, size, 0) == -1) {
         perror("mq_send");
         exit(EXIT_FAILURE);
     }
+}
+
+void test_message(){
+    sleep(1);
+    uint8_t buffer[MAX_MSG_SIZE];
+
+    u_int8_t filler = 0x00;
+    for (int i = 0; i < MAX_MSG_SIZE; ++i) {
+        buffer[i] = filler;
+        filler++;
+    }
+
+    send_message(buffer, MAX_MSG_SIZE);
 }
 
 void *thread_read_fct(void *arg) {
@@ -99,26 +122,15 @@ void *thread_write_fct(void *arg) {
     while (running) {
 
         // Memory allocation for the message
-        message_t *msg = malloc(sizeof(message_t));
-        if (msg == NULL) {
-            perror("Erreur d'allocation de mémoire\n");
-            exit(EXIT_FAILURE);
-        }
-
-        printf("message_t : %d\n", sizeof(message_t));
-        printf("message : %d\n", sizeof(msg));
+        uint8_t buffer[MAX_MSG_SIZE];
 
         // Waiting for a message on the message queue
-        ssize_t bytes_read = mq_receive(mq_write, msg, sizeof(message_t), NULL);
+        ssize_t bytes_read = mq_receive(mq_write, buffer, MAX_MSG_SIZE, NULL);
         if (bytes_read == -1) {
             perror("mq_receive");
             exit(EXIT_FAILURE);
 
         } else if (bytes_read > 0) {
-
-            // Writing the message content in a buffer and send it on the socket
-            uint8_t buffer[MAX_MSG_SIZE];
-            protocole_code(msg, buffer);
             ssize_t bytes_sent = connexion_write( buffer, MAX_MSG_SIZE);
 
             // Display sending information
@@ -132,25 +144,7 @@ void *thread_write_fct(void *arg) {
             printf("\n");
         }
 
-        free(msg);
         usleep(200);
     }
     return NULL;
-}
-
-void test_message(){
-    sleep(1);
-    message_t *msg = malloc(sizeof(message_t));
-    if (msg == NULL) {
-        perror("Erreur d'allocation de mémoire\n");
-        exit(EXIT_FAILURE);
-    }
-
-    msg->id = 1;
-    msg->dlc = 27;
-
-    for (int i = 0; i < MAX_MSG_SIZE; ++i) {
-        msg->payload[i] = 0xFF;
-    }
-    com_send_message(msg);
 }

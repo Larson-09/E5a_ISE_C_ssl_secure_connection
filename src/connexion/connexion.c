@@ -1,9 +1,7 @@
 //
 // Created by jordan on 22/11/23.
 //
-#include <errno.h>
 #include <unistd.h>
-#include <malloc.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,72 +11,101 @@
 #include "openssl/ssl.h"
 #include "openssl/err.h"
 
-#include "../protocole/protocole.h"
+#include "connexion.h"
+#include "../conf.c"
 
 static int socket_server;
 static SSL_CTX *ctx;
 static SSL *ssl;
 int running = 1;
 
-int open_listener(int port);
+
+/**
+ * Initialize the SSL context
+ * @return
+ */
 SSL_CTX* init_ctx(void);
+
+/**
+ * Load server certificate and private key
+ * @param context           The SSL context used by the connection
+ * @param cert_filepath     The path of the certificate file
+ * @param key_filepath      The path of the private key file
+ */
 void load_certificates(SSL_CTX* context, char* cert_filepath, char* key_filepath);
-void wait_for_connection();
+
+/***
+ * Show certificate information
+ * @param ssl
+ */
 void show_certificates();
-int is_root();
+/***
+ * Open a listener on a specific port
+ * @param port  The port to listen on
+ * @return      The ID of the used socket
+ */
+
+int open_listener(int port);
+
+/**
+ * Wait for client connection on server
+ */
+void wait_for_connection();
+
 
 void connexion_init()
 {
     char port[16];
     snprintf(port, sizeof(port), "%d", SERVER_PORT);
 
-    // Initialisation de la librairie SSL
+    // Initialize SSL library
     SSL_library_init();
 
-    // Initialisation d'un context SSL
+    // Initialize a SSL context
     ctx = init_ctx();
 
-    // Chargement du certificat et de la clé
+    // Load and check certificate and key
     load_certificates(ctx, "../certificates/server.pem", "../certificates/server_key.pem");
 
-    // Ouvertur des ports et sockets
+    // Open a listener on socket and port
     socket_server = open_listener(atoi(port));
 
-    // Mise en attente de connexion
+    // Client connection waiting
     wait_for_connection();
 }
 
 ssize_t connexion_read(uint8_t *buffer, size_t length) {
 
-    // Lecture des données depuis la connexion SSL
+    // Waiting for a incoming message
     int bytes_read = SSL_read(ssl, buffer, (int)length);
 
-    // Si une erreur survient
+    // If an error occurs
     if (bytes_read == -1) {
 
         ERR_print_errors_fp(stderr);
         fflush(stderr);
         return -1;
     }
-    // Si la connexion est fermée par le client
+    // If the connection is closed by the client
     else if (bytes_read == 0) {
         printf("\nConnection closed by client\n");
         wait_for_connection();
     }
 
-    return (ssize_t)bytes_read; // Retourne le nombre d'octets lus depuis la connexion SSL
+    // Return the number of read bytes
+    return (ssize_t)bytes_read;
 }
 
 ssize_t connexion_write(const uint8_t *data, size_t length) {
 
-    // Ecriture du message sur le socket
+    // Write a message on the socket
     ssize_t num_written = SSL_write(ssl, data, length);
     if (num_written < 0) {
         ERR_print_errors_fp(stderr);
         return -1;
     }
 
-    // Retour du nombre de bytes écris
+    // Return the number of read bytes
     return num_written;
 }
 
@@ -88,11 +115,6 @@ void connexion_close(){
     SSL_CTX_free(ctx);
 }
 
-/***
- * Open a listener on a specific port
- * @param port  The port to listen
- * @return      The ID of the used socket
- */
 int open_listener(int port)
 {
     printf("Opening listener on port %i\n", port);
@@ -120,35 +142,33 @@ int open_listener(int port)
 
 SSL_CTX* init_ctx(void)
 {
-    // Charge tous les algorithmes cryptographiques disponibles
+    // Load available cryptographic algorithms
     OpenSSL_add_all_algorithms();
 
-    // Charge toutes les chaînes d'erreur pour OpenSSL
+    // Load all error strings for OpenSSL
     SSL_load_error_strings();
 
-    // Sélectionne la méthode du protocole TLS v1.2 pour le serveur
+    // Select the protocol method for the server
     SSL_METHOD *method;
     method = TLSv1_2_server_method();
 
-    // Crée un nouvel objet de contexte SSL
+    // Init a new SSL context
     SSL_CTX *ctx;
     ctx = SSL_CTX_new(method);
 
-    // Vérifie si la création du contexte a réussi
     if ( ctx == NULL )
     {
         ERR_print_errors_fp(stderr);
         abort();
     }
 
-    // Retourne le contexte SSL nouvellement créé
     return ctx;
 }
 
 
 void load_certificates(SSL_CTX* context, char* cert_filepath, char* key_filepath)
 {
-    // Chargement du certificat
+    // Load server certificate
     printf("Loading certificates %s\n", cert_filepath);
     if (SSL_CTX_use_certificate_file(context, cert_filepath, SSL_FILETYPE_PEM) <= 0 )
     {
@@ -156,7 +176,7 @@ void load_certificates(SSL_CTX* context, char* cert_filepath, char* key_filepath
         abort();
     }
 
-    // Chargement de la clé privée
+    // Load server private key
     printf("Loading key %s\n", key_filepath);
     if (SSL_CTX_use_PrivateKey_file(context, key_filepath, SSL_FILETYPE_PEM) <= 0 )
     {
@@ -164,7 +184,7 @@ void load_certificates(SSL_CTX* context, char* cert_filepath, char* key_filepath
         abort();
     }
 
-    // Vérification de la clé privée
+    // Check the private key
     if (!SSL_CTX_check_private_key(ctx))
     {
         fprintf(stderr, "Private key does not match the public certificate\n");
@@ -174,10 +194,6 @@ void load_certificates(SSL_CTX* context, char* cert_filepath, char* key_filepath
     printf("Certificates successfully loaded\n");
 }
 
-/***
- * Show certificate information
- * @param ssl
- */
 void show_certificates()
 {
     X509 *cert;
@@ -201,48 +217,29 @@ void show_certificates()
         printf("No certificates\n");
 }
 
-/**
- * Wait for client connection on server
- */
+
 void wait_for_connection() {
     struct sockaddr_in addr;
     socklen_t len = sizeof(addr);
 
-    // Attend une nouvelle connexion
+    // Wait for a connection
     printf("Waiting for connection\n");
     int client = accept(socket_server, (struct sockaddr*)&addr, &len);
 
-    // Affiche les détails de la nouvelle connexion
+    // Display connection detail
     printf("\nNew connection :\n"
            "- Source : %s:%d\n"
            "- Certificate : ",inet_ntoa(addr.sin_addr), ntohs(addr.sin_port));
-
-    // Crée un nouvel objet SSL pour cette connexion
-    ssl = SSL_new(ctx);
-
-    // Affiche les détails du certificat du serveur
     show_certificates(ssl);
 
-    // Configure l'objet SSL pour utiliser le socket client pour cette connexion
+    // Instantiate the SSL object
+    ssl = SSL_new(ctx);
+
+    // Configures the SSL object to use the client socket for this connection
     SSL_set_fd(ssl, client);
 
-    // Vérifie et accepte la connexion sécurisée avec le client
+    // Verifies and accepts the secure connection with the client
     if(SSL_accept(ssl) == -1){
         ERR_print_errors_fp(stderr);
-    }
-
-    printf("- SSL_accept : passed\n");
-}
-
-
-int is_root()
-{
-    if (getuid() != 0)
-    {
-        return 0;
-    }
-    else
-    {
-        return 1;
     }
 }

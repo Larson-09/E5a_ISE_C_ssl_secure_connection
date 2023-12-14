@@ -2,15 +2,13 @@
 // Created by jordan on 15/11/23.
 //
 
-#include "com/com/com.h"
+#include "example_code/example_code.h"
 #include <stdio.h>
 #include <unistd.h>
 
 int main (int argc, char *argv[])
 {
-    // Communication Init
-    com_init();
+    launch();
     pause();
-    printf("Hello Robot : Ctrl+C pour quitter\n");
     fflush(stdout);
 }

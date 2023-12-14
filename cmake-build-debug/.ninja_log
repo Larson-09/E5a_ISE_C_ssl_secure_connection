@@ -1,9 +1,16 @@
 # ninja log v5
-1	53	1702387310349650813	CMakeFiles/exploration_securite.dir/src/com/cipher/cipher.c.o	f0f191802ddf619d
-53	84	1702387310381650739	CMakeFiles/exploration_securite.dir/src/com/protocole/protocole.c.o	d5aa43c4e54a70f7
-0	45	1702471259739713664	build.ninja	d1dc19b858f03c73
-1	61	1702387310357650794	CMakeFiles/exploration_securite.dir/src/com/com/com.c.o	b8a759a511c1bb7
-1	54	1702387310349650813	CMakeFiles/exploration_securite.dir/src/main.c.o	f885ba8122091494
-1	73	1702397472742043421	exploration_securite	b39881f86859d2fa
-2	92	1702397455677259046	CMakeFiles/exploration_securite.dir/src/com/connexion/connexion.c.o	ff852e5f482b38cc
+1	98	1702541355525439521	CMakeFiles/exploration_securite.dir/src/connexion/connexion.c.o	b07f060e407df6cd
+3	33	1702538081169020504	CMakeFiles/exploration_securite.dir/src/com/protocole/protocole.c.o	685ce2b397546755
+0	37	1702541479706668731	build.ninja	e020bde70ad01c8d
+0	27	1702540669521999437	CMakeFiles/exploration_securite.dir/src/main.c.o	f765c811ea2b57
+1	33	1702538889946541495	CMakeFiles/exploration_securite.dir/src/com/com/com.c.o	72851b291d6d6062
+0	37	1702539141376284821	CMakeFiles/exploration_securite.dir/src/com/com.c.o	5317fd9941e66f69
+99	168	1702541355593440139	exploration_securite	d7026b1cd4a3a5c0
+1	92	1702538890006547299	CMakeFiles/exploration_securite.dir/src/com/connexion/connexion.c.o	fcc236d06b3f615c
+1	60	1702541355485439157	CMakeFiles/exploration_securite.dir/src/example_code/example_code.c.o	6f57b641e3e1da22
 0	3	0	clean	690b186f5f2dc854
+1	35	1702541757977870571	CMakeFiles/exploration_securite.dir/src/example_code/example_code.c.o	6f57b641e3e1da22
+1	82	1702541758025871154	CMakeFiles/exploration_securite.dir/src/connexion/connexion.c.o	b07f060e407df6cd
+82	163	1702541758105872126	exploration_securite	d7026b1cd4a3a5c0
+0	63	1702541783402180511	CMakeFiles/exploration_securite.dir/src/example_code/example_code.c.o	6f57b641e3e1da22
+63	135	1702541783478181441	exploration_securite	d7026b1cd4a3a5c0
