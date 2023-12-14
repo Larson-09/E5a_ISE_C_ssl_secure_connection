@@ -14,11 +14,9 @@ le client et le serveur. L’objectif de cette exploration est donc d’impléme
 documenter notre travail pour permettre à un autre développeur de remettre en place rapidement une communication
 sécurisée.
 
-L'implémentation en C est détaillée dans la partie "**Implémentation en C**" et le code source est disponible dans ce 
-dépôt : https://github.com/Larson-09/E5a_ISE_C_ssl_secure_connection
+L'implémentation en C est détaillée dans la partie "**Implémentation en C**" et le code source est disponible dans le dossier "C".
 
-L'implémentation en Java (Android) est détaillée dans la partie "**Implémentation en Java**" et le code source est disponible dans ce
-dépôt : https://github.com/lucaassito/ExplorationSecurite
+L'implémentation en Java (Android) est détaillée dans la partie "**Implémentation en Java**" et le code source est disponible dans le dossier "Android".
 
 
 ## Technologies utilisées
@@ -262,9 +260,12 @@ La première étape dans l’initialisation de la connexion va être de déclare
 souhaitons nous connecter. Il faut ensuite récupérer le certificat SSL du serveur tout en précisant le type de
 chiffrement (ici TLS), et le format (ici X.509) du certificat, le tout dans un thread dédié.
 
+```java
 private static final String SERVER_IP = "192.168.16.36";
 private static final int SERVER_PORT = 12344;
+```
 
+```java
 Resources resources = context.getResources();
 InputStream certificateFile = resources.openRawResource(R.raw.server);
 CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
@@ -279,28 +280,40 @@ trustManagerFactory.init(keyStore);
 
 SSLContext sslContext = SSLContext.getInstance("TLS");
 sslContext.init(null, trustManagerFactory.getTrustManagers(), null);
+```
 
 L’étape suivante est ensuite de déclarer un Socket SSL auquel nous associons un contexte contenant tous les éléments
 déclarés au-dessus, pour ensuite établir la connexion.
+
+```java
 SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
 
 sslSocket = (SSLSocket) sslSocketFactory.createSocket(SERVER_IP, SERVER_PORT);
 
 sslSocket.startHandshake();
+```
 
-Réception d’un message
+
+## Réception d’un message
 La méthode de réception d’un message est identique, que la communication utilise ou non le protocole SSL. Nous allons
 déclarer un InputStream reçu par le socket, sur lequel nous lirons les données provenant du serveur.
+
+
+```java
 InputStream inputStream = sslSocket.getInputStream();
 
 int bytesRead = inputStream.read(buffer);
+```
 
-Envoi d’un message
+## Envoi d’un message
 La méthode d’envoi d’un message est identique, que la communication utilise ou non le protocole SSL. Nous allons
 déclarer un OutputStream reçu par le socket, sur lequel nous écrirons les données à destination du serveur.
 
+```java
 OutputStream outputStream = sslSocket.getOutputStream();
 
 outputStream.write(msg);
+```
+
 
 
