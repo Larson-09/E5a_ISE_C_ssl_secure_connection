@@ -71,10 +71,10 @@ Pour le serveur C, nous utilisons la librairie **OpenSSL** pour implémenter la 
 offre une gamme complète de protocoles cryptographiques, assurant des connexions sécurisées. De plus, elle est largement
 éprouvée et offre une documentation étayée, ce qui assure sa stabilité dans le temps.
 
-Pour installer la librairie : 
+Pour installer les librairies : 
 ```bash
 sudo apt-get update
-sudo apt-get install openssl
+sudo apt-get install openssl libssl-dev
 ```
 
 ## Processus de lancement
