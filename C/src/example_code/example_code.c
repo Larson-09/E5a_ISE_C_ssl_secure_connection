@@ -7,6 +7,7 @@
 #include "example_code.h"
 #include "../connexion/connexion.h"
 #include "../conf.c"
+#include "../trace/trace.h"
 
 
 #define MQ_WRITE_NAME "/mq_write"
@@ -106,9 +107,9 @@ void *thread_read_fct(void *arg) {
             break;
         } else {
             // Display received message information
-            printf("Message received :\n");
-            printf("- Bytes read : %d\n", bytes_read);
-            printf("- Content : %s\n", buffer);
+            TRACE("Message received :\n");
+            TRACE("- Bytes read : %d\n", bytes_read);
+            TRACE("- Content : %s\n", buffer);
 
             // Send a response message to the client
             test_message();
@@ -134,14 +135,14 @@ void *thread_write_fct(void *arg) {
             ssize_t bytes_sent = connexion_write( buffer, MAX_MSG_SIZE);
 
             // Display sending information
-            printf("\nMessage sent :\n");
-            printf("- Bytes_read : %d\n", bytes_sent);
-            printf("- Message : ");
+            TRACE("\nMessage sent :\n");
+            TRACE("- Bytes_read : %d\n", bytes_sent);
+            TRACE("- Message : ");
 
             for (int i = 0; i < MAX_MSG_SIZE; ++i) {
-                printf("%02X ", buffer[i]);
+                TRACE("%02X ", buffer[i]);
             }
-            printf("\n");
+            TRACE("\n");
         }
 
         usleep(200);

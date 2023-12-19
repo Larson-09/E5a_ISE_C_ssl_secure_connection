@@ -13,6 +13,7 @@
 
 #include "connexion.h"
 #include "../conf.c"
+#include "../trace/trace.h"
 
 static int socket_server;
 static SSL_CTX *ctx;
@@ -88,7 +89,7 @@ ssize_t connexion_read(uint8_t *buffer, size_t length) {
     }
     // If the connection is closed by the client
     else if (bytes_read == 0) {
-        printf("\nConnection closed by client\n");
+        TRACE("\nConnection closed by client\n");
         wait_for_connection();
     }
 
@@ -117,7 +118,7 @@ void connexion_close(){
 
 int open_listener(int port)
 {
-    printf("Opening listener on port %i\n", port);
+    TRACE("Opening listener on port %i\n", port);
 
     int sd;
     struct sockaddr_in addr;
@@ -169,7 +170,7 @@ SSL_CTX* init_ctx(void)
 void load_certificates(SSL_CTX* context, char* cert_filepath, char* key_filepath)
 {
     // Load server certificate
-    printf("Loading certificates %s\n", cert_filepath);
+    TRACE("Loading certificates %s\n", cert_filepath);
     if (SSL_CTX_use_certificate_file(context, cert_filepath, SSL_FILETYPE_PEM) <= 0 )
     {
         ERR_print_errors_fp(stderr);
@@ -177,7 +178,7 @@ void load_certificates(SSL_CTX* context, char* cert_filepath, char* key_filepath
     }
 
     // Load server private key
-    printf("Loading key %s\n", key_filepath);
+    TRACE("Loading key %s\n", key_filepath);
     if (SSL_CTX_use_PrivateKey_file(context, key_filepath, SSL_FILETYPE_PEM) <= 0 )
     {
         ERR_print_errors_fp(stderr);
@@ -191,7 +192,7 @@ void load_certificates(SSL_CTX* context, char* cert_filepath, char* key_filepath
         abort();
     }
 
-    printf("Certificates successfully loaded\n");
+    TRACE("Certificates successfully loaded\n");
 }
 
 void show_certificates()
@@ -202,19 +203,19 @@ void show_certificates()
 
     if (cert != NULL)
     {
-        printf("Server certificates:\n");
+        TRACE("Server certificates:\n");
         line = X509_NAME_oneline(X509_get_subject_name(cert), 0, 0);
-        printf("Subject: %s\n", line);
+        TRACE("Subject: %s\n", line);
         free(line);
 
         line = X509_NAME_oneline(X509_get_issuer_name(cert), 0, 0);
-        printf("Issuer: %s\n", line);
+        TRACE("Issuer: %s\n", line);
         free(line);
 
         X509_free(cert);
     }
     else
-        printf("No certificates\n");
+        TRACE("No certificates\n");
 }
 
 
@@ -223,11 +224,11 @@ void wait_for_connection() {
     socklen_t len = sizeof(addr);
 
     // Wait for a connection
-    printf("Waiting for connection\n");
+    TRACE("Waiting for connection\n");
     int client = accept(socket_server, (struct sockaddr*)&addr, &len);
 
     // Display connection detail
-    printf("\nNew connection :\n"
+    TRACE("\nNew connection :\n"
            "- Source : %s:%d\n"
            "- Certificate : ",inet_ntoa(addr.sin_addr), ntohs(addr.sin_port));
     show_certificates(ssl);
